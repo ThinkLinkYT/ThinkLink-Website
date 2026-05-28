@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ThinkLink Series | Playlists and Minecraft Arcs</title>
+    <meta
+      name="description"
+      content="Browse ThinkLink Minecraft series, playlists, event arcs, Hive streams, and upcoming channel collections."
+    >
+    <meta name="theme-color" content="#080a08">
+    <meta property="og:title" content="ThinkLink Series">
+    <meta property="og:description" content="Minecraft playlists, series arcs, and upcoming ThinkLink collections.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/img/thinklink-hero.png">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/img/thinklink-hero.png" as="image">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script defer src="assets/js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="brand" href="index.html#spotlight" aria-label="ThinkLink home">
+        <span class="brand__mark" aria-hidden="true">
+          <img src="assets/img/thinklink-logo.jpg" alt="">
+        </span>
+        <span class="brand__name">ThinkLink</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="index.html#spotlight">Spotlight</a>
+        <a href="series.html" aria-current="page">Series</a>
+        <a href="index.html#stats">Stats</a>
+        <a href="index.html#community">Discord</a>
+      </nav>
+      <a class="header-action" href="https://www.youtube.com/@ThinkLink_YT/playlists" rel="noopener" target="_blank">
+        Playlists
+      </a>
+    </header>
+
+    <main id="main">
+      <section class="page-hero" aria-labelledby="series-heading">
+        <div>
+          <p class="eyebrow">Playlist hub</p>
+          <h1 id="series-heading">Series</h1>
+          <p class="lede">
+            Clean collections for modded Minecraft arcs, Hive streams, events, and challenge runs as they go public on YouTube.
+          </p>
+        </div>
+        <div class="series-summary" aria-label="Series summary">
+          <span class="sync-panel__label">Public playlists</span>
+          <strong id="series-count">Checking</strong>
+          <span class="sync-panel__note" id="series-updated">Waiting for channel sync</span>
+        </div>
+      </section>
+
+      <section class="content-band series-band" aria-labelledby="series-grid-heading">
+        <div class="section-head">
+          <p class="section-kicker">Auto synced</p>
+          <h2 id="series-grid-heading">Channel playlists</h2>
+        </div>
+        <div class="series-grid" id="series-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="discord-section" aria-labelledby="series-discord-heading">
+        <div>
+          <p class="section-kicker">Community picks</p>
+          <h2 id="series-discord-heading">Suggest the next series</h2>
+          <p>
+            Vote on future modpacks, event formats, and challenge ideas with the ThinkLink community.
+          </p>
+        </div>
+        <a class="button button--primary" href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">
+          Join Discord <span class="button__icon" aria-hidden="true">-&gt;</span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>ThinkLink</span>
+      <span>Built for GitHub Pages</span>
+      <a href="index.html">Home</a>
+      <a href="https://www.youtube.com/@ThinkLink_YT/featured" rel="noopener" target="_blank">YouTube</a>
+      <a href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">Discord</a>
+    </footer>
+  </body>
+</html>

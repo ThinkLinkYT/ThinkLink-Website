@@ -2,6 +2,11 @@
 
 Static GitHub Pages site for the ThinkLink Minecraft YouTube channel.
 
+## Pages
+
+- `index.html` is the main channel hub.
+- `series.html` is the playlist and series hub.
+
 ## Auto-update plan
 
 Yes: this can auto-update without running a backend server. The safe setup is:
@@ -11,6 +16,8 @@ Yes: this can auto-update without running a backend server. The safe setup is:
 - The browser only reads that public JSON file, so no private key is shipped to visitors.
 
 The updater works best when the repository has a `YOUTUBE_API_KEY` secret. Without that secret, it still checks YouTube's public RSS feed for the latest upload, but subscriber count and full channel statistics may stay blank.
+
+Playlists are also synced into `data/channel.json`. With a `YOUTUBE_API_KEY`, public playlists can include empty playlists with an item count of `0`, which is useful for planning future series before videos are posted.
 
 Channel member counts are different. YouTube does not expose a public live member count for a static website. Reading paid membership data requires creator-owned authorization and should not be done in browser code. This site keeps that area as a professional "Soon" state until memberships are unlocked and there is a secure plan for it.
 

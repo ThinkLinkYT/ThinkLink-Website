@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const CHANNEL_ID = "UCKoSe3mZp5VI5psWORRbObA";
 const CHANNEL_HANDLE = "@ThinkLink_YT";
 const CHANNEL_URL = "https://www.youtube.com/@ThinkLink_YT/featured";
+const PLAYLISTS_URL = "https://www.youtube.com/@ThinkLink_YT/playlists";
 const DATA_FILE = fileURLToPath(new URL("../data/channel.json", import.meta.url));
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
@@ -36,6 +37,7 @@ async function fromYouTubeApi() {
 
   const uploads = item.contentDetails?.relatedPlaylists?.uploads;
   const latestVideo = uploads ? await latestFromPlaylist(uploads) : null;
+  const playlists = await playlistsFromApi();
 
   return {
     channel: {
@@ -52,12 +54,13 @@ async function fromYouTubeApi() {
       membershipsAvailable: existing.channel?.membershipsAvailable ?? false
     },
     latestVideo,
+    playlists,
     updatedAt: new Date().toISOString(),
     source: "youtube-api"
   };
 }
 
-async function latestFromPlaylist(playlistId) {
+async function latestFromPlaylist(playlistId, playlistTitle = "") {
   const playlistResponse = await fetchJson(
     `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=1&key=${API_KEY}`
   );
@@ -68,26 +71,81 @@ async function latestFromPlaylist(playlistId) {
   }
 
   const videoId = item.snippet.resourceId.videoId;
-  return {
+  return enrichVideoFromApi({
     videoId,
     title: item.snippet.title,
     description: cleanDescription(item.snippet.description),
     publishedAt: item.snippet.publishedAt,
     url: `https://www.youtube.com/watch?v=${videoId}`,
-    thumbnail: bestThumbnail(item.snippet.thumbnails)
-  };
+    thumbnail: bestThumbnail(item.snippet.thumbnails),
+    playlistTitle
+  });
+}
+
+async function playlistsFromApi() {
+  const playlistResponse = await fetchJson(
+    `https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&channelId=${CHANNEL_ID}&maxResults=50&key=${API_KEY}`
+  );
+
+  const playlists = playlistResponse.items || [];
+  const withLatest = await Promise.all(playlists.map(async (playlist) => {
+    const itemCount = toNumber(playlist.contentDetails?.itemCount) || 0;
+    const latestVideo = itemCount > 0 ? await latestFromPlaylist(playlist.id, playlist.snippet?.title || "") : null;
+
+    return {
+      id: playlist.id,
+      title: playlist.snippet?.title || "Untitled series",
+      description: cleanDescription(playlist.snippet?.description || ""),
+      itemCount,
+      thumbnail: bestThumbnail(playlist.snippet?.thumbnails) || latestVideo?.thumbnail || null,
+      url: `https://www.youtube.com/playlist?list=${playlist.id}`,
+      latestVideo,
+      isEmpty: itemCount === 0
+    };
+  }));
+
+  return withLatest;
+}
+
+async function enrichVideoFromApi(video) {
+  try {
+    const videoResponse = await fetchJson(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,liveStreamingDetails&id=${video.videoId}&key=${API_KEY}`
+    );
+    const item = videoResponse.items?.[0];
+    const liveState = item?.snippet?.liveBroadcastContent;
+    const scheduledStartTime = item?.liveStreamingDetails?.scheduledStartTime;
+
+    return {
+      ...video,
+      status: getSpotlightStatus(liveState, scheduledStartTime),
+      scheduledStartTime: scheduledStartTime || null,
+      isEventRecap: looksLikeEventRecap(video)
+    };
+  } catch {
+    return {
+      ...video,
+      status: "published",
+      scheduledStartTime: null,
+      isEventRecap: looksLikeEventRecap(video)
+    };
+  }
 }
 
 async function fromPublicFeeds() {
-  const [feed, aboutHtml] = await Promise.allSettled([
+  const [feed, aboutHtml, playlistsHtml] = await Promise.allSettled([
     fetchText(`https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`),
-    fetchText("https://www.youtube.com/@ThinkLink_YT/about")
+    fetchText("https://www.youtube.com/@ThinkLink_YT/about"),
+    fetchText(PLAYLISTS_URL)
   ]);
 
   const latestVideo = feed.status === "fulfilled" ? latestFromRss(feed.value) : null;
   const publicChannel = aboutHtml.status === "fulfilled"
     ? extractPublicChannelData(aboutHtml.value)
     : {};
+  const playlists = playlistsHtml.status === "fulfilled"
+    ? extractPublicPlaylists(playlistsHtml.value)
+    : existing.playlists || [];
 
   return {
     channel: {
@@ -104,6 +162,7 @@ async function fromPublicFeeds() {
       membershipsAvailable: existing.channel?.membershipsAvailable ?? false
     },
     latestVideo,
+    playlists,
     updatedAt: new Date().toISOString(),
     source: "public-feed"
   };
@@ -131,7 +190,10 @@ function latestFromRss(xml) {
     description: cleanDescription(decodeXml(description)),
     publishedAt,
     url: `https://www.youtube.com/watch?v=${videoId}`,
-    thumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`
+    thumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+    status: "published",
+    scheduledStartTime: null,
+    isEventRecap: looksLikeEventRecap({ title, description })
   };
 }
 
@@ -180,9 +242,59 @@ function extractPublicChannelData(html) {
   };
 }
 
+function extractPublicPlaylists(html) {
+  if (/This channel has no playlists\./i.test(html)) {
+    return [];
+  }
+
+  const playlistIds = [...html.matchAll(/"playlistId"\s*:\s*"([^"]+)"/g)]
+    .map((match) => match[1])
+    .filter(unique);
+
+  return playlistIds.map((id) => {
+    const index = html.indexOf(id);
+    const segment = html.slice(Math.max(0, index - 2000), index + 4000);
+    const title = extractFirstText(segment, [
+      /"title"\s*:\s*"((?:\\.|[^"\\])*)"/,
+      /"simpleText"\s*:\s*"((?:\\.|[^"\\])*)"/
+    ]) || "Untitled series";
+    const itemCount = parsePublicCount(extractFirstText(segment, [
+      /"videoCountText"\s*:\s*"((?:\\.|[^"\\])*)"/,
+      /"text"\s*:\s*"((?:\\.|[^"\\])*) videos?"/
+    ])) || 0;
+
+    return {
+      id,
+      title,
+      description: "",
+      itemCount,
+      thumbnail: extractThumbnail(segment),
+      url: `https://www.youtube.com/playlist?list=${id}`,
+      latestVideo: null,
+      isEmpty: itemCount === 0
+    };
+  });
+}
+
 function extractJsonString(source, key) {
   const match = source.match(new RegExp(`"${escapeRegExp(key)}"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"`));
   return match ? decodeJsonString(match[1]).replace(/\s+/g, " ").trim() : "";
+}
+
+function extractFirstText(source, patterns) {
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    if (match) {
+      return decodeJsonString(match[1]).replace(/\s+/g, " ").trim();
+    }
+  }
+
+  return "";
+}
+
+function extractThumbnail(source) {
+  const matches = [...source.matchAll(/"url"\s*:\s*"(https:\/\/i\.ytimg\.com\/[^"]+)"/g)];
+  return matches.at(-1)?.[1] || null;
 }
 
 function parsePublicCount(value = "") {
@@ -195,6 +307,27 @@ function parsePublicCount(value = "") {
   const number = Number(match[1]);
   const multiplier = multipliers[match[2]?.toUpperCase()] || 1;
   return Number.isFinite(number) ? Math.round(number * multiplier) : null;
+}
+
+function getSpotlightStatus(liveState, scheduledStartTime) {
+  if (liveState === "live") {
+    return "live";
+  }
+
+  if (liveState === "upcoming" || (scheduledStartTime && new Date(scheduledStartTime) > new Date())) {
+    return "upcoming";
+  }
+
+  return "published";
+}
+
+function looksLikeEventRecap(video) {
+  const value = `${video.title || ""} ${video.description || ""} ${video.playlistTitle || ""}`.toLowerCase();
+  return /\b(event|recap|finale|tournament|challenge)\b/.test(value);
+}
+
+function unique(value, index, array) {
+  return array.indexOf(value) === index;
 }
 
 function text(block, tag) {

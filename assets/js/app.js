@@ -14,6 +14,7 @@ const FALLBACK = {
     membershipsAvailable: false
   },
   latestVideo: null,
+  playlists: [],
   updatedAt: null
 };
 
@@ -22,6 +23,7 @@ const els = {
   spotlightPlay: document.querySelector("#spotlight-play"),
   spotlightStatus: document.querySelector("#spotlight-status"),
   spotlightHeading: document.querySelector("#spotlight-heading"),
+  spotlightMeta: document.querySelector("#spotlight-meta"),
   spotlightDescription: document.querySelector("#spotlight-description"),
   watchLink: document.querySelector("#watch-link"),
   aboutText: document.querySelector("#about-text"),
@@ -29,7 +31,11 @@ const els = {
   videoCount: document.querySelector("#video-count"),
   viewCount: document.querySelector("#view-count"),
   memberCount: document.querySelector("#member-count"),
-  lastUpdated: document.querySelector("#last-updated")
+  lastUpdated: document.querySelector("#last-updated"),
+  milestoneGrid: document.querySelector("#milestone-grid"),
+  seriesGrid: document.querySelector("#series-grid"),
+  seriesCount: document.querySelector("#series-count"),
+  seriesUpdated: document.querySelector("#series-updated")
 };
 
 init();
@@ -59,19 +65,35 @@ function mergeData(base, incoming) {
     channel: {
       ...base.channel,
       ...(incoming.channel || {})
-    }
+    },
+    playlists: Array.isArray(incoming.playlists) ? incoming.playlists : base.playlists
   };
 }
 
 function render(data) {
-  const { channel, latestVideo } = data;
+  const { channel, latestVideo, playlists } = data;
 
-  document.title = `${channel.title} | Minecraft Videos, Events, and Live Moments`;
-  els.aboutText.textContent = channel.description || FALLBACK.channel.description;
-  els.watchLink.href = latestVideo?.url || channel.url || FALLBACK.channel.url;
-  els.lastUpdated.textContent = formatDate(data.updatedAt) || "Waiting for first sync";
+  document.title = document.title.replace("ThinkLink", channel.title || "ThinkLink");
+
+  if (els.aboutText) {
+    els.aboutText.textContent = channel.description || FALLBACK.channel.description;
+  }
+
+  if (els.watchLink) {
+    els.watchLink.href = latestVideo?.url || channel.url || FALLBACK.channel.url;
+  }
+
+  if (els.lastUpdated) {
+    els.lastUpdated.textContent = formatDate(data.updatedAt) || "Waiting for first sync";
+  }
 
   renderSpotlight(channel, latestVideo);
+  renderMetrics(channel);
+  renderMilestones(channel);
+  renderSeriesPage(playlists, data.updatedAt);
+}
+
+function renderMetrics(channel) {
   setMetric(els.subscriberCount, channel.subscriberCount, "Pending");
   setMetric(els.videoCount, channel.videoCount, "0");
   setMetric(els.viewCount, channel.viewCount, "Pending");
@@ -83,28 +105,83 @@ function render(data) {
 }
 
 function renderSpotlight(channel, latestVideo) {
+  if (!els.spotlightHeading || !els.spotlightDescription || !els.spotlightStatus) {
+    return;
+  }
+
   if (!latestVideo) {
     els.spotlightStatus.textContent = "Ready for the first upload";
     els.spotlightHeading.textContent = "First video incoming";
     els.spotlightDescription.textContent =
       "The newest public upload will appear here automatically once ThinkLink posts a video.";
-    els.spotlightImage.src = "assets/img/thinklink-hero.png";
-    els.spotlightPlay.hidden = true;
+    if (els.spotlightMeta) {
+      els.spotlightMeta.innerHTML = `<span>No public videos yet</span><span>Spotlight armed</span>`;
+    }
+    if (els.spotlightImage) {
+      els.spotlightImage.src = "assets/img/thinklink-hero.png";
+    }
+    if (els.spotlightPlay) {
+      els.spotlightPlay.hidden = true;
+    }
     return;
   }
 
-  els.spotlightStatus.textContent = "Latest upload";
+  const state = getSpotlightState(latestVideo);
+  els.spotlightStatus.textContent = state.status;
   els.spotlightHeading.textContent = latestVideo.title || "Latest ThinkLink video";
   els.spotlightDescription.textContent =
-    latestVideo.description || "Watch the newest ThinkLink Minecraft upload.";
-  els.spotlightImage.src = latestVideo.thumbnail || makeThumbnail(latestVideo.videoId);
-  els.spotlightImage.alt = latestVideo.title || `${channel.title} latest video`;
-  els.spotlightPlay.hidden = false;
-  els.spotlightPlay.onclick = () => loadVideo(latestVideo.videoId);
+    latestVideo.description || state.description || "Watch the newest ThinkLink Minecraft upload.";
+
+  if (els.spotlightMeta) {
+    const meta = [
+      state.status,
+      latestVideo.playlistTitle ? `Series: ${latestVideo.playlistTitle}` : "Latest public video",
+      formatShortDate(latestVideo.scheduledStartTime || latestVideo.publishedAt)
+    ].filter(Boolean);
+    els.spotlightMeta.innerHTML = meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
+  }
+
+  if (els.spotlightImage) {
+    els.spotlightImage.src = latestVideo.thumbnail || makeThumbnail(latestVideo.videoId);
+    els.spotlightImage.alt = latestVideo.title || `${channel.title} latest video`;
+  }
+
+  if (els.spotlightPlay) {
+    els.spotlightPlay.hidden = false;
+    els.spotlightPlay.onclick = () => loadVideo(latestVideo.videoId);
+  }
+}
+
+function getSpotlightState(video) {
+  if (video.status === "live") {
+    return {
+      status: "Live now",
+      description: "ThinkLink is live right now. Jump in while the stream is active."
+    };
+  }
+
+  if (video.status === "upcoming") {
+    return {
+      status: "Premiere scheduled",
+      description: "The next ThinkLink video is scheduled and will stay in the spotlight until it goes live."
+    };
+  }
+
+  if (video.isEventRecap) {
+    return {
+      status: "Event recap",
+      description: "The latest featured video is tied to an event, challenge, or community moment."
+    };
+  }
+
+  return {
+    status: "Latest upload",
+    description: "The newest public ThinkLink upload is always shown here."
+  };
 }
 
 function loadVideo(videoId) {
-  if (!videoId) {
+  if (!videoId || !els.spotlightImage) {
     return;
   }
 
@@ -115,7 +192,107 @@ function loadVideo(videoId) {
   iframe.referrerPolicy = "strict-origin-when-cross-origin";
   iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1`;
   els.spotlightImage.replaceWith(iframe);
-  els.spotlightPlay.remove();
+  els.spotlightPlay?.remove();
+}
+
+function renderMilestones(channel) {
+  if (!els.milestoneGrid) {
+    return;
+  }
+
+  const milestones = [
+    {
+      label: "1K subscribers",
+      value: channel.subscriberCount || 0,
+      target: 1000,
+      detail: "Build the first big ThinkLink crowd."
+    },
+    {
+      label: "10 public videos",
+      value: channel.videoCount || 0,
+      target: 10,
+      detail: "Enough uploads to make the channel feel alive."
+    },
+    {
+      label: "10K channel views",
+      value: channel.viewCount || 0,
+      target: 10000,
+      detail: "A strong early signal that people are watching."
+    }
+  ];
+
+  els.milestoneGrid.innerHTML = milestones.map((milestone) => {
+    const percent = clamp((milestone.value / milestone.target) * 100, 0, 100);
+    const remaining = Math.max(0, milestone.target - milestone.value);
+
+    return `
+      <article class="milestone-card">
+        <div class="milestone-card__head">
+          <h3>${escapeHtml(milestone.label)}</h3>
+          <strong>${Math.round(percent)}%</strong>
+        </div>
+        <div class="progress-track" aria-label="${escapeHtml(milestone.label)} progress">
+          <span style="width: ${percent}%"></span>
+        </div>
+        <p>${escapeHtml(compactNumber(milestone.value))} / ${escapeHtml(compactNumber(milestone.target))}</p>
+        <span>${remaining === 0 ? "Goal reached" : `${escapeHtml(compactNumber(remaining))} to go`}</span>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderSeriesPage(playlists, updatedAt) {
+  if (!els.seriesGrid) {
+    return;
+  }
+
+  const safePlaylists = Array.isArray(playlists) ? playlists : [];
+  if (els.seriesCount) {
+    els.seriesCount.textContent = `${safePlaylists.length} public ${safePlaylists.length === 1 ? "playlist" : "playlists"}`;
+  }
+  if (els.seriesUpdated) {
+    els.seriesUpdated.textContent = `Last sync ${formatDate(updatedAt) || "pending"}`;
+  }
+
+  if (safePlaylists.length === 0) {
+    els.seriesGrid.innerHTML = `
+      <article class="empty-series">
+        <p class="section-kicker">Coming soon</p>
+        <h2>No public playlists yet</h2>
+        <p>When ThinkLink creates public playlists, they will appear here automatically, including empty ones.</p>
+        <a class="button button--primary" href="https://www.youtube.com/@ThinkLink_YT/playlists" rel="noopener" target="_blank">
+          Open YouTube playlists <span class="button__icon" aria-hidden="true">-&gt;</span>
+        </a>
+      </article>
+    `;
+    return;
+  }
+
+  els.seriesGrid.innerHTML = safePlaylists.map((playlist) => renderPlaylistCard(playlist)).join("");
+}
+
+function renderPlaylistCard(playlist) {
+  const latest = playlist.latestVideo;
+  const thumbnail = safeUrl(playlist.thumbnail || latest?.thumbnail || "assets/img/thinklink-hero.png");
+  const title = playlist.title || "Untitled series";
+  const itemCount = Number(playlist.itemCount) || 0;
+  const badge = itemCount === 0 ? "Empty playlist" : `${compactNumber(itemCount)} ${itemCount === 1 ? "video" : "videos"}`;
+  const url = safeUrl(playlist.url || "https://www.youtube.com/@ThinkLink_YT/playlists");
+
+  return `
+    <article class="series-card">
+      <a class="series-card__media" href="${url}" rel="noopener" target="_blank" aria-label="${escapeHtml(title)} playlist">
+        <img src="${thumbnail}" alt="">
+        <span>${escapeHtml(badge)}</span>
+      </a>
+      <div class="series-card__body">
+        <p class="section-kicker">${itemCount === 0 ? "Ready slot" : "Playlist"}</p>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(playlist.description || latest?.title || "This series is ready for future ThinkLink uploads.")}</p>
+        <a class="text-link" href="${url}" rel="noopener" target="_blank">View playlist</a>
+      </div>
+    </article>
+  `;
 }
 
 function makeThumbnail(videoId) {
@@ -123,6 +300,10 @@ function makeThumbnail(videoId) {
 }
 
 function setMetric(element, value, fallback) {
+  if (!element) {
+    return;
+  }
+
   if (value === null || value === undefined || value === "") {
     element.textContent = fallback;
     return;
@@ -156,4 +337,45 @@ function formatDate(value) {
     hour: "numeric",
     minute: "2-digit"
   }).format(date);
+}
+
+function formatShortDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric"
+  }).format(date);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function safeUrl(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (/^(https:\/\/|assets\/)/.test(value)) {
+    return escapeHtml(value);
+  }
+
+  return "";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

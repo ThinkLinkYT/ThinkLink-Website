@@ -35,7 +35,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html .nojekyll _site/
+          cp *.html .nojekyll _site/
           cp -r assets data _site/
 
       - name: Upload Pages artifact
