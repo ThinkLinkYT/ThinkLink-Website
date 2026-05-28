@@ -18,7 +18,7 @@ Yes: this can auto-update without running a backend server. The safe setup is:
 
 The updater works best when the repository has a `YOUTUBE_API_KEY` secret. Without that secret, it still checks YouTube's public RSS feed for the latest upload, but subscriber count and full channel statistics may stay blank.
 
-Long-form videos, streams, and playlists are also synced into `data/channel.json`. The spotlight and videos page filter out Shorts, so the featured area stays focused on full uploads. With a `YOUTUBE_API_KEY`, public playlists can include empty playlists with an item count of `0`, which is useful for planning future series before videos are posted.
+Long-form videos, streams, and playlists are also synced into `data/channel.json`. The spotlight and videos page filter out Shorts and only display videos uploaded by the ThinkLink channel, so off-channel collaborations do not appear unless ThinkLink owns the upload. With a `YOUTUBE_API_KEY`, public playlists can include empty playlists with an item count of `0`, which is useful for planning future series before videos are posted.
 
 Channel member counts are different. YouTube does not expose a public live member count for a static website. Reading paid membership data requires creator-owned authorization and should not be done in browser code. This site keeps that area as a professional "Soon" state until memberships are unlocked and there is a secure plan for it.
 

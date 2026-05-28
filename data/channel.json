@@ -8,47 +8,13 @@
     "thumbnail": null,
     "subscriberCount": 873,
     "viewCount": 5368,
-    "videoCount": 1,
+    "videoCount": 0,
     "memberCount": null,
     "membershipsAvailable": false
   },
-  "latestVideo": {
-    "videoId": "CYWhVbAZUhI",
-    "title": "I joined the GREATEST Minecraft Build Battle",
-    "description": "",
-    "publishedAt": null,
-    "publishedAtText": "7mo ago",
-    "url": "https://www.youtube.com/watch?v=CYWhVbAZUhI",
-    "thumbnail": "https://i.ytimg.com/vi/CYWhVbAZUhI/hqdefault.jpg",
-    "duration": "41:11",
-    "durationSeconds": 2471,
-    "viewCount": null,
-    "status": "published",
-    "scheduledStartTime": null,
-    "isEventRecap": false,
-    "isShort": false,
-    "isStream": false
-  },
-  "videos": [
-    {
-      "videoId": "CYWhVbAZUhI",
-      "title": "I joined the GREATEST Minecraft Build Battle",
-      "description": "",
-      "publishedAt": null,
-      "publishedAtText": "7mo ago",
-      "url": "https://www.youtube.com/watch?v=CYWhVbAZUhI",
-      "thumbnail": "https://i.ytimg.com/vi/CYWhVbAZUhI/hqdefault.jpg",
-      "duration": "41:11",
-      "durationSeconds": 2471,
-      "viewCount": null,
-      "status": "published",
-      "scheduledStartTime": null,
-      "isEventRecap": false,
-      "isShort": false,
-      "isStream": false
-    }
-  ],
+  "latestVideo": null,
+  "videos": [],
   "playlists": [],
-  "updatedAt": "2026-05-28T19:59:58.807Z",
+  "updatedAt": "2026-05-28T20:11:33.421Z",
   "source": "public-feed"
 }

@@ -7,7 +7,6 @@ const CHANNEL_HANDLE = "@ThinkLink_YT";
 const CHANNEL_URL = "https://www.youtube.com/@ThinkLink_YT/featured";
 const DISCORD_URL = "https://discord.gg/3ZpEBbdB3G";
 const PLAYLISTS_URL = "https://www.youtube.com/@ThinkLink_YT/playlists";
-const VIDEOS_URL = "https://www.youtube.com/@ThinkLink_YT/videos";
 const DATA_FILE = fileURLToPath(new URL("../data/channel.json", import.meta.url));
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
@@ -39,7 +38,7 @@ async function fromYouTubeApi() {
 
   const uploads = item.contentDetails?.relatedPlaylists?.uploads;
   const allVideos = uploads ? await videosFromUploadsPlaylist(uploads) : [];
-  const videos = allVideos.filter((video) => !video.isShort);
+  const videos = allVideos.filter(isLongFormOwnerUpload);
   const latestVideo = videos[0] || null;
   const playlists = await playlistsFromApi();
 
@@ -53,7 +52,7 @@ async function fromYouTubeApi() {
       thumbnail: bestThumbnail(item.snippet?.thumbnails),
       subscriberCount: toNumber(item.statistics?.subscriberCount),
       viewCount: toNumber(item.statistics?.viewCount),
-      videoCount: toNumber(item.statistics?.videoCount),
+      videoCount: videos.length,
       memberCount: existing.channel?.memberCount ?? null,
       membershipsAvailable: existing.channel?.membershipsAvailable ?? false
     },
@@ -105,7 +104,7 @@ async function videosFromPlaylist(playlistId, maxResults = 50, playlistTitle = "
     }));
 
   const enriched = await enrichVideosFromApi(videos);
-  return enriched.filter((video) => !video.isShort);
+  return enriched.filter(isLongFormOwnerUpload);
 }
 
 async function enrichVideosFromApi(videos) {
@@ -131,6 +130,7 @@ async function enrichVideosFromApi(videos) {
     const durationSeconds = parseIsoDuration(item.contentDetails?.duration);
     const isStream = Boolean(item.liveStreamingDetails) || liveState === "live" || liveState === "upcoming";
     const isShort = !isStream && durationSeconds > 0 && durationSeconds <= 180;
+    const isOwnerUpload = item.snippet?.channelId === CHANNEL_ID;
 
     return {
       ...base,
@@ -147,7 +147,8 @@ async function enrichVideosFromApi(videos) {
       scheduledStartTime: scheduledStartTime || null,
       isEventRecap: looksLikeEventRecap(base),
       isShort,
-      isStream
+      isStream,
+      isOwnerUpload
     };
   });
 }
@@ -178,17 +179,18 @@ async function playlistsFromApi() {
 }
 
 async function fromPublicFeeds() {
-  const [feed, aboutHtml, playlistsHtml, videosHtml] = await Promise.allSettled([
+  const [feed, aboutHtml, playlistsHtml] = await Promise.allSettled([
     fetchText(`https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`),
     fetchText("https://www.youtube.com/@ThinkLink_YT/about"),
-    fetchText(PLAYLISTS_URL),
-    fetchText(VIDEOS_URL)
+    fetchText(PLAYLISTS_URL)
   ]);
 
-  const publicVideos = videosHtml.status === "fulfilled" ? extractPublicVideos(videosHtml.value) : [];
-  const rssVideo = feed.status === "fulfilled" ? latestFromRss(feed.value) : null;
-  const videos = publicVideos.length > 0 ? publicVideos : (rssVideo ? [rssVideo] : existing.videos || []);
-  const latestVideo = videos.find((video) => !video.isShort) || null;
+  const fallbackVideos = Array.isArray(existing.videos)
+    ? existing.videos.filter(isLongFormOwnerUpload)
+    : [];
+  const rssVideos = feed.status === "fulfilled" ? await videosFromRss(feed.value) : [];
+  const videos = feed.status === "fulfilled" ? rssVideos.filter(isLongFormOwnerUpload) : fallbackVideos;
+  const latestVideo = videos[0] || null;
   const publicChannel = aboutHtml.status === "fulfilled"
     ? extractPublicChannelData(aboutHtml.value)
     : {};
@@ -206,7 +208,7 @@ async function fromPublicFeeds() {
       thumbnail: existing.channel?.thumbnail || null,
       subscriberCount: publicChannel.subscriberCount ?? existing.channel?.subscriberCount ?? null,
       viewCount: publicChannel.viewCount ?? existing.channel?.viewCount ?? null,
-      videoCount: Math.max(publicChannel.videoCount ?? 0, existing.channel?.videoCount ?? 0, videos.length),
+      videoCount: videos.length,
       memberCount: existing.channel?.memberCount ?? null,
       membershipsAvailable: existing.channel?.membershipsAvailable ?? false
     },
@@ -218,13 +220,15 @@ async function fromPublicFeeds() {
   };
 }
 
-function latestFromRss(xml) {
-  const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/);
-  if (!entry) {
-    return null;
-  }
+async function videosFromRss(xml) {
+  const videos = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)]
+    .map((entry) => videoFromRssBlock(entry[1]))
+    .filter(Boolean);
 
-  const block = entry[1];
+  return Promise.all(videos.map(enrichOwnerVideoFromWatchPage));
+}
+
+function videoFromRssBlock(block) {
   const videoId = text(block, "yt:videoId");
   const title = text(block, "title");
   const publishedAt = text(block, "published");
@@ -248,8 +252,33 @@ function latestFromRss(xml) {
     scheduledStartTime: null,
     isEventRecap: looksLikeEventRecap({ title, description }),
     isShort: false,
-    isStream: false
+    isStream: false,
+    isOwnerUpload: true
   };
+}
+
+async function enrichOwnerVideoFromWatchPage(video) {
+  try {
+    const html = await fetchText(video.url);
+    const durationSeconds = extractWatchDuration(html);
+    const isStream = /"isLiveContent"\s*:\s*true/.test(html) || /"liveBroadcastDetails"/.test(html);
+    const isShort = !isStream && durationSeconds > 0 && durationSeconds <= 180;
+
+    return {
+      ...video,
+      duration: durationSeconds ? formatDuration(durationSeconds) : "",
+      durationSeconds,
+      isShort,
+      isStream,
+      isOwnerUpload: true
+    };
+  } catch {
+    return {
+      ...video,
+      isShort: true,
+      isOwnerUpload: true
+    };
+  }
 }
 
 async function fetchJson(url) {
@@ -296,50 +325,6 @@ function extractPublicChannelData(html) {
     viewCount: parsePublicCount(extractJsonString(segment, "viewCountText")),
     videoCount: parsePublicCount(extractJsonString(segment, "videoCountText"))
   };
-}
-
-function extractPublicVideos(html) {
-  const ids = [...html.matchAll(/"videoId"\s*:\s*"([^"]+)"/g)]
-    .map((match) => match[1])
-    .filter(unique);
-
-  return ids.map((videoId) => {
-    const index = html.indexOf(`"videoId":"${videoId}"`);
-    const segment = html.slice(Math.max(0, index - 2500), index + 14000);
-    const title = extractFirstText(segment, [
-      /"title"\s*:\s*\{\s*"content"\s*:\s*"((?:\\.|[^"\\])*)"/,
-      /"title"\s*:\s*"((?:\\.|[^"\\])*)"/,
-      /"simpleText"\s*:\s*"((?:\\.|[^"\\])*)"/
-    ]) || "Untitled video";
-    const duration = extractFirstText(segment, [
-      /"thumbnailBadgeViewModel"\s*:\s*\{\s*"text"\s*:\s*"((?:\\.|[^"\\])*)"/,
-      /"accessibilityContext"\s*:\s*\{\s*"label"\s*:\s*"((?:\\.|[^"\\])*)"/
-    ]);
-    const durationSeconds = parseDurationText(duration);
-    const isShort = durationSeconds > 0 && durationSeconds <= 180 && !/live|stream/i.test(segment);
-    const metaRows = [...segment.matchAll(/"content"\s*:\s*"((?:\\.|[^"\\])*)"/g)]
-      .map((match) => decodeJsonString(match[1]).replace(/\s+/g, " ").trim());
-    const viewText = metaRows.find((value) => /\bviews?\b/i.test(value));
-    const publishedAtText = metaRows.find((value) => /\b(ago|premiered|streamed|scheduled)\b/i.test(value));
-
-    return {
-      videoId,
-      title,
-      description: "",
-      publishedAt: null,
-      publishedAtText: publishedAtText || "",
-      url: `https://www.youtube.com/watch?v=${videoId}`,
-      thumbnail: extractThumbnail(segment) || makeThumbnail(videoId),
-      duration: normalizeDurationLabel(duration),
-      durationSeconds: durationSeconds || null,
-      viewCount: parsePublicCount(viewText || ""),
-      status: /live now/i.test(segment) ? "live" : "published",
-      scheduledStartTime: null,
-      isEventRecap: looksLikeEventRecap({ title }),
-      isShort,
-      isStream: /live|stream/i.test(segment)
-    };
-  }).filter((video) => !video.isShort);
 }
 
 function extractPublicPlaylists(html) {
@@ -420,16 +405,18 @@ function parseIsoDuration(value = "") {
     + (Number(match[3]) || 0);
 }
 
-function parseDurationText(value = "") {
-  const clock = value.match(/\b(?:(\d+):)?(\d{1,2}):(\d{2})\b/);
-  if (clock) {
-    return (Number(clock[1]) || 0) * 3600 + Number(clock[2]) * 60 + Number(clock[3]);
+function extractWatchDuration(html) {
+  const secondsMatch = html.match(/"lengthSeconds"\s*:\s*"?(\d+)/);
+  if (secondsMatch) {
+    return Number(secondsMatch[1]) || null;
   }
 
-  const hours = Number(value.match(/(\d+)\s*hours?/i)?.[1]) || 0;
-  const minutes = Number(value.match(/(\d+)\s*minutes?/i)?.[1]) || 0;
-  const seconds = Number(value.match(/(\d+)\s*seconds?/i)?.[1]) || 0;
-  return hours || minutes || seconds ? hours * 3600 + minutes * 60 + seconds : null;
+  const millisMatch = html.match(/"approxDurationMs"\s*:\s*"?(\d+)/);
+  if (millisMatch) {
+    return Math.round(Number(millisMatch[1]) / 1000) || null;
+  }
+
+  return null;
 }
 
 function formatDuration(seconds) {
@@ -439,11 +426,6 @@ function formatDuration(seconds) {
   return hours > 0
     ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`
     : `${minutes}:${String(remaining).padStart(2, "0")}`;
-}
-
-function normalizeDurationLabel(value = "") {
-  const seconds = parseDurationText(value);
-  return seconds ? formatDuration(seconds) : "";
 }
 
 function getSpotlightStatus(liveState, scheduledStartTime) {
@@ -461,6 +443,18 @@ function getSpotlightStatus(liveState, scheduledStartTime) {
 function looksLikeEventRecap(video) {
   const value = `${video.title || ""} ${video.description || ""} ${video.playlistTitle || ""}`.toLowerCase();
   return /\b(event|recap|finale|tournament|challenge)\b/.test(value);
+}
+
+function isLongFormOwnerUpload(video) {
+  if (!video || video.isOwnerUpload !== true || video.isShort === true) {
+    return false;
+  }
+
+  if (video.isStream === true) {
+    return true;
+  }
+
+  return Number(video.durationSeconds) > 180;
 }
 
 function unique(value, index, array) {

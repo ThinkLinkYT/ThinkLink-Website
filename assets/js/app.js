@@ -77,6 +77,8 @@ function mergeData(base, incoming) {
 
 function render(data) {
   const { channel, latestVideo, videos, playlists } = data;
+  const ownerVideos = Array.isArray(videos) ? videos.filter(isDisplayableOwnerVideo) : [];
+  const ownerLatestVideo = isDisplayableOwnerVideo(latestVideo) ? latestVideo : ownerVideos[0] || null;
 
   document.title = document.title.replace("ThinkLink", channel.title || "ThinkLink");
 
@@ -85,17 +87,17 @@ function render(data) {
   }
 
   if (els.watchLink) {
-    els.watchLink.href = latestVideo?.url || channel.url || FALLBACK.channel.url;
+    els.watchLink.href = ownerLatestVideo?.url || channel.url || FALLBACK.channel.url;
   }
 
   if (els.lastUpdated) {
     els.lastUpdated.textContent = formatDate(data.updatedAt) || "Waiting for first sync";
   }
 
-  renderSpotlight(channel, latestVideo);
+  renderSpotlight(channel, ownerLatestVideo);
   renderMetrics(channel);
   renderMilestones(channel);
-  renderVideosPage(videos, data.updatedAt);
+  renderVideosPage(ownerVideos, data.updatedAt);
   renderSeriesPage(playlists, data.updatedAt);
 }
 
@@ -282,7 +284,7 @@ function renderVideosPage(videos, updatedAt) {
     return;
   }
 
-  const safeVideos = Array.isArray(videos) ? videos.filter((video) => !video.isShort) : [];
+  const safeVideos = Array.isArray(videos) ? videos.filter(isDisplayableOwnerVideo) : [];
   if (els.videosCount) {
     els.videosCount.textContent = `${safeVideos.length} ${safeVideos.length === 1 ? "video" : "videos"}`;
   }
@@ -295,7 +297,7 @@ function renderVideosPage(videos, updatedAt) {
       <article class="empty-series">
         <p class="section-kicker">Coming soon</p>
         <h2>No long-form videos yet</h2>
-        <p>When ThinkLink has public long-form uploads or streams, they will appear here automatically. Shorts are intentionally left out of this page.</p>
+        <p>When ThinkLink has public long-form uploads or streams posted on this channel, they will appear here automatically. Shorts and off-channel collaborations are intentionally left out.</p>
         <a class="button button--primary" href="https://www.youtube.com/@ThinkLink_YT/videos" rel="noopener" target="_blank">
           Open YouTube videos <span class="button__icon" aria-hidden="true">-&gt;</span>
         </a>
@@ -358,6 +360,18 @@ function renderPlaylistCard(playlist) {
 
 function makeThumbnail(videoId) {
   return videoId ? `https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg` : "assets/img/thinklink-hero.png";
+}
+
+function isDisplayableOwnerVideo(video) {
+  if (!video || video.isOwnerUpload !== true || video.isShort === true) {
+    return false;
+  }
+
+  if (video.isStream === true) {
+    return true;
+  }
+
+  return Number(video.durationSeconds) > 180;
 }
 
 function setMetric(element, value, fallback) {
