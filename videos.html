@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ThinkLink Series | Playlists and Minecraft Arcs</title>
+    <title>ThinkLink Videos | Minecraft Uploads and Streams</title>
     <meta
       name="description"
-      content="Browse ThinkLink Minecraft series, playlists, event arcs, challenge runs, and upcoming channel collections."
+      content="Watch ThinkLink Minecraft videos, streams, collaborations, and event uploads from YouTube."
     >
     <meta name="theme-color" content="#080a08">
-    <meta property="og:title" content="ThinkLink Series">
-    <meta property="og:description" content="Minecraft playlists, series arcs, and upcoming ThinkLink collections.">
+    <meta property="og:title" content="ThinkLink Videos">
+    <meta property="og:description" content="Minecraft uploads, streams, collaborations, and event videos from ThinkLink.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/img/thinklink-hero.png">
     <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -30,50 +30,37 @@
       </a>
       <nav class="nav-links" aria-label="Main">
         <a href="index.html">Home</a>
-        <a href="videos.html">Videos</a>
-        <a href="series.html" aria-current="page">Series</a>
+        <a href="videos.html" aria-current="page">Videos</a>
+        <a href="series.html">Series</a>
         <a href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">Discord</a>
       </nav>
-      <a class="header-action" href="https://www.youtube.com/@ThinkLink_YT/playlists" rel="noopener" target="_blank">
-        Playlists
+      <a class="header-action" href="https://www.youtube.com/@ThinkLink_YT/videos" rel="noopener" target="_blank">
+        YouTube
       </a>
     </header>
 
     <main id="main">
-      <section class="page-hero" aria-labelledby="series-heading">
+      <section class="page-hero" aria-labelledby="videos-heading">
         <div>
-          <p class="eyebrow">Playlist hub</p>
-          <h1 id="series-heading">Series</h1>
+          <p class="eyebrow">Video library</p>
+          <h1 id="videos-heading">Videos</h1>
           <p class="lede">
-            Clean collections for modded Minecraft arcs, events, collaborations, and challenge runs as they go public on YouTube.
+            Long-form uploads and streams from ThinkLink, synced from YouTube and linked straight to the original videos.
           </p>
         </div>
-        <div class="series-summary" aria-label="Series summary">
-          <span class="sync-panel__label">Public playlists</span>
-          <strong id="series-count">Checking</strong>
-          <span class="sync-panel__note" id="series-updated">Waiting for channel sync</span>
+        <div class="series-summary" aria-label="Videos summary">
+          <span class="sync-panel__label">Long-form videos</span>
+          <strong id="videos-count">Checking</strong>
+          <span class="sync-panel__note" id="videos-updated">Waiting for channel sync</span>
         </div>
       </section>
 
-      <section class="content-band series-band" aria-labelledby="series-grid-heading">
+      <section class="content-band videos-band" aria-labelledby="videos-grid-heading">
         <div class="section-head">
           <p class="section-kicker">Auto synced</p>
-          <h2 id="series-grid-heading">Channel playlists</h2>
+          <h2 id="videos-grid-heading">YouTube videos</h2>
         </div>
-        <div class="series-grid" id="series-grid" aria-live="polite"></div>
-      </section>
-
-      <section class="discord-section" aria-labelledby="series-discord-heading">
-        <div>
-          <p class="section-kicker">Community picks</p>
-          <h2 id="series-discord-heading">Suggest the next series</h2>
-          <p>
-            Vote on future modpacks, event formats, and challenge ideas with the ThinkLink community.
-          </p>
-        </div>
-        <a class="button button--primary" href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">
-          Join Discord <span class="button__icon" aria-hidden="true">-&gt;</span>
-        </a>
+        <div class="video-grid" id="video-grid" aria-live="polite"></div>
       </section>
     </main>
 

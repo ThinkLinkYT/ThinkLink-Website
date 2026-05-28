@@ -6,7 +6,7 @@ const FALLBACK = {
     handle: "@ThinkLink_YT",
     url: "https://www.youtube.com/@ThinkLink_YT/featured",
     description:
-      "I play Modded Minecraft with my friends along with Hive live to keep it different sometimes. I also host Minecraft events and spend a ton of time editing.",
+      "I play Modded Minecraft with my friends, host Minecraft events, and spend a ton of time editing.",
     subscriberCount: null,
     viewCount: null,
     videoCount: 0,
@@ -14,6 +14,7 @@ const FALLBACK = {
     membershipsAvailable: false
   },
   latestVideo: null,
+  videos: [],
   playlists: [],
   updatedAt: null
 };
@@ -35,7 +36,10 @@ const els = {
   milestoneGrid: document.querySelector("#milestone-grid"),
   seriesGrid: document.querySelector("#series-grid"),
   seriesCount: document.querySelector("#series-count"),
-  seriesUpdated: document.querySelector("#series-updated")
+  seriesUpdated: document.querySelector("#series-updated"),
+  videoGrid: document.querySelector("#video-grid"),
+  videosCount: document.querySelector("#videos-count"),
+  videosUpdated: document.querySelector("#videos-updated")
 };
 
 init();
@@ -66,12 +70,13 @@ function mergeData(base, incoming) {
       ...base.channel,
       ...(incoming.channel || {})
     },
+    videos: Array.isArray(incoming.videos) ? incoming.videos : base.videos,
     playlists: Array.isArray(incoming.playlists) ? incoming.playlists : base.playlists
   };
 }
 
 function render(data) {
-  const { channel, latestVideo, playlists } = data;
+  const { channel, latestVideo, videos, playlists } = data;
 
   document.title = document.title.replace("ThinkLink", channel.title || "ThinkLink");
 
@@ -90,6 +95,7 @@ function render(data) {
   renderSpotlight(channel, latestVideo);
   renderMetrics(channel);
   renderMilestones(channel);
+  renderVideosPage(videos, data.updatedAt);
   renderSeriesPage(playlists, data.updatedAt);
 }
 
@@ -113,7 +119,7 @@ function renderSpotlight(channel, latestVideo) {
     els.spotlightStatus.textContent = "Ready for the first upload";
     els.spotlightHeading.textContent = "First video incoming";
     els.spotlightDescription.textContent =
-      "The newest public upload will appear here automatically once ThinkLink posts a video.";
+      "The newest public long-form upload or stream will appear here automatically once ThinkLink posts a video.";
     if (els.spotlightMeta) {
       els.spotlightMeta.innerHTML = `<span>No public videos yet</span><span>Spotlight armed</span>`;
     }
@@ -176,7 +182,7 @@ function getSpotlightState(video) {
 
   return {
     status: "Latest upload",
-    description: "The newest public ThinkLink upload is always shown here."
+    description: "The newest long-form ThinkLink upload or stream is always shown here."
   };
 }
 
@@ -271,6 +277,61 @@ function renderSeriesPage(playlists, updatedAt) {
   els.seriesGrid.innerHTML = safePlaylists.map((playlist) => renderPlaylistCard(playlist)).join("");
 }
 
+function renderVideosPage(videos, updatedAt) {
+  if (!els.videoGrid) {
+    return;
+  }
+
+  const safeVideos = Array.isArray(videos) ? videos.filter((video) => !video.isShort) : [];
+  if (els.videosCount) {
+    els.videosCount.textContent = `${safeVideos.length} ${safeVideos.length === 1 ? "video" : "videos"}`;
+  }
+  if (els.videosUpdated) {
+    els.videosUpdated.textContent = `Last sync ${formatDate(updatedAt) || "pending"}`;
+  }
+
+  if (safeVideos.length === 0) {
+    els.videoGrid.innerHTML = `
+      <article class="empty-series">
+        <p class="section-kicker">Coming soon</p>
+        <h2>No long-form videos yet</h2>
+        <p>When ThinkLink has public long-form uploads or streams, they will appear here automatically. Shorts are intentionally left out of this page.</p>
+        <a class="button button--primary" href="https://www.youtube.com/@ThinkLink_YT/videos" rel="noopener" target="_blank">
+          Open YouTube videos <span class="button__icon" aria-hidden="true">-&gt;</span>
+        </a>
+      </article>
+    `;
+    return;
+  }
+
+  els.videoGrid.innerHTML = safeVideos.map((video) => renderVideoCard(video)).join("");
+}
+
+function renderVideoCard(video) {
+  const thumbnail = safeUrl(video.thumbnail || makeThumbnail(video.videoId));
+  const url = safeUrl(video.url || `https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`);
+  const meta = [
+    video.duration,
+    video.publishedAtText || formatShortDate(video.publishedAt),
+    video.viewCount !== null && video.viewCount !== undefined ? `${compactNumber(video.viewCount)} views` : ""
+  ].filter(Boolean);
+  const badge = video.status === "live" ? "Live now" : video.status === "upcoming" ? "Scheduled" : video.duration || "Video";
+
+  return `
+    <article class="video-card">
+      <a class="video-card__media" href="${url}" rel="noopener" target="_blank" aria-label="${escapeHtml(video.title || "ThinkLink video")}">
+        <img src="${thumbnail}" alt="">
+        <span>${escapeHtml(badge)}</span>
+      </a>
+      <div class="video-card__body">
+        <h3>${escapeHtml(video.title || "Untitled video")}</h3>
+        <p>${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p>
+        <a class="text-link" href="${url}" rel="noopener" target="_blank">Watch on YouTube</a>
+      </div>
+    </article>
+  `;
+}
+
 function renderPlaylistCard(playlist) {
   const latest = playlist.latestVideo;
   const thumbnail = safeUrl(playlist.thumbnail || latest?.thumbnail || "assets/img/thinklink-hero.png");
@@ -296,7 +357,7 @@ function renderPlaylistCard(playlist) {
 }
 
 function makeThumbnail(videoId) {
-  return videoId ? `https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/maxresdefault.jpg` : "assets/img/thinklink-hero.png";
+  return videoId ? `https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg` : "assets/img/thinklink-hero.png";
 }
 
 function setMetric(element, value, fallback) {
