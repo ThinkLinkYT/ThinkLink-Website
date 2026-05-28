@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ThinkLink | Minecraft Videos, Events, and Live Moments</title>
+    <meta
+      name="description"
+      content="ThinkLink is a Minecraft YouTube channel for modded adventures, Hive live moments, community events, and Discord updates."
+    >
+    <meta name="theme-color" content="#080a08">
+    <meta property="og:title" content="ThinkLink">
+    <meta
+      property="og:description"
+      content="Modded Minecraft, Hive live moments, community events, and a growing Discord community."
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/img/thinklink-hero.png">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/img/thinklink-hero.png" as="image">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script defer src="assets/js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="brand" href="#spotlight" aria-label="ThinkLink home">
+        <span class="brand__mark" aria-hidden="true">
+          <img src="assets/img/thinklink-logo.jpg" alt="">
+        </span>
+        <span class="brand__name">ThinkLink</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#spotlight">Spotlight</a>
+        <a href="#about">About</a>
+        <a href="#stats">Stats</a>
+        <a href="#community">Discord</a>
+      </nav>
+      <a class="header-action" href="https://www.youtube.com/@ThinkLink_YT/featured" rel="noopener" target="_blank">
+        YouTube
+      </a>
+    </header>
+
+    <main id="main">
+      <section class="spotlight" id="spotlight" aria-labelledby="spotlight-heading">
+        <div class="spotlight__visual" aria-label="Latest video preview">
+          <img
+            id="spotlight-image"
+            src="assets/img/thinklink-hero.png"
+            alt="Voxel landscape with glowing Minecraft-inspired blocks"
+          >
+          <button class="play-button" id="spotlight-play" type="button" hidden aria-label="Play latest ThinkLink video">
+            <span aria-hidden="true"></span>
+          </button>
+          <div class="spotlight__tag">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span id="spotlight-status">Ready for the first upload</span>
+          </div>
+        </div>
+
+        <div class="spotlight__copy">
+          <p class="eyebrow">Minecraft creator hub</p>
+          <h1>ThinkLink</h1>
+          <p class="lede">
+            Modded Minecraft with friends, Hive live streams, and community events built for players who like the story behind the chaos.
+          </p>
+          <div class="spotlight-copy-block">
+            <p class="section-kicker">Spotlight</p>
+            <h2 id="spotlight-heading">First video incoming</h2>
+            <p id="spotlight-description">
+              The newest upload will appear here automatically once the channel has a public video.
+            </p>
+          </div>
+          <div class="action-row">
+            <a class="button button--primary" id="watch-link" href="https://www.youtube.com/@ThinkLink_YT/featured" rel="noopener" target="_blank">
+              Watch on YouTube <span class="button__icon" aria-hidden="true">-&gt;</span>
+            </a>
+            <a class="button button--secondary" href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">
+              Join Discord
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band about-band" id="about" aria-labelledby="about-heading">
+        <div class="section-head">
+          <p class="section-kicker">Auto synced</p>
+          <h2 id="about-heading">About ThinkLink</h2>
+        </div>
+        <div class="about-layout">
+          <p class="about-text" id="about-text">
+            I play Modded Minecraft with my friends along with Hive live to keep it different sometimes. I also host Minecraft events and spend a ton of time editing.
+          </p>
+          <div class="sync-panel" aria-label="Channel sync status">
+            <span class="sync-panel__label">Last channel sync</span>
+            <strong id="last-updated">Preparing data</strong>
+            <span class="sync-panel__note">GitHub Actions refreshes public YouTube data without exposing secrets in the browser.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band stats-band" id="stats" aria-labelledby="stats-heading">
+        <div class="section-head">
+          <p class="section-kicker">Channel pulse</p>
+          <h2 id="stats-heading">Channel stats</h2>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-value" id="subscriber-count">Pending</span>
+            <span class="stat-label">Subscribers</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-value" id="video-count">0</span>
+            <span class="stat-label">Videos</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-value" id="view-count">Pending</span>
+            <span class="stat-label">Channel views</span>
+          </article>
+          <article class="stat-card stat-card--accent">
+            <span class="stat-value" id="member-count">Soon</span>
+            <span class="stat-label">Channel members</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-band roadmap-band" aria-labelledby="roadmap-heading">
+        <div class="section-head">
+          <p class="section-kicker">Built to grow</p>
+          <h2 id="roadmap-heading">Next site upgrades</h2>
+        </div>
+        <div class="roadmap-grid">
+          <article class="roadmap-card">
+            <span class="roadmap-card__stripe"></span>
+            <h3>Event Board</h3>
+            <p>Show upcoming Minecraft events, sign-up links, winners, and highlight videos once they exist.</p>
+          </article>
+          <article class="roadmap-card">
+            <span class="roadmap-card__stripe"></span>
+            <h3>Series Tracker</h3>
+            <p>Group modded survival arcs, Hive streams, and one-off challenges into clean playlists.</p>
+          </article>
+          <article class="roadmap-card">
+            <span class="roadmap-card__stripe"></span>
+            <h3>Community Picks</h3>
+            <p>Feature Discord polls, build challenges, and viewer-submitted ideas on a rotating wall.</p>
+          </article>
+          <article class="roadmap-card">
+            <span class="roadmap-card__stripe"></span>
+            <h3>Creator Kit</h3>
+            <p>Keep thumbnails, rules, event packs, and collaboration details in one polished place.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="discord-section" id="community" aria-labelledby="discord-heading">
+        <div>
+          <p class="section-kicker">Community</p>
+          <h2 id="discord-heading">Join the ThinkLink Discord</h2>
+          <p>
+            Hang out between uploads, catch event announcements, and help shape what the channel becomes next.
+          </p>
+        </div>
+        <a class="button button--primary" href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">
+          Open Discord <span class="button__icon" aria-hidden="true">-&gt;</span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>ThinkLink</span>
+      <span>Built for GitHub Pages</span>
+      <a href="https://www.youtube.com/@ThinkLink_YT/featured" rel="noopener" target="_blank">YouTube</a>
+      <a href="https://discord.gg/3ZpEBbdB3G" rel="noopener" target="_blank">Discord</a>
+    </footer>
+  </body>
+</html>
