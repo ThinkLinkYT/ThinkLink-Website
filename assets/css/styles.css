@@ -7,7 +7,7 @@
   --ink: #f4fff4;
   --muted: #b5c2b4;
   --quiet: #7f8d7f;
-  --line: rgba(244, 255, 244, 0.14);
+  --line: rgba(244, 255, 244, 0.11);
   --lime: #79f15f;
   --cyan: #4fd2d8;
   --amber: #ffd166;
@@ -28,7 +28,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(8, 10, 8, 0.88), rgba(8, 10, 8, 0.98)),
+    linear-gradient(180deg, rgba(8, 10, 8, 0.92), rgba(8, 10, 8, 0.99)),
     url("../img/thinklink-hero.png") center top / cover fixed,
     var(--bg);
   color: var(--ink);
@@ -42,10 +42,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(180deg, #000 0%, transparent 76%);
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 68%);
 }
 
 a {
@@ -128,6 +128,11 @@ img {
   border-radius: 8px;
   background: rgba(12, 17, 13, 0.62);
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.2);
+  scrollbar-width: none;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-links a,
@@ -384,16 +389,14 @@ h3 {
 .content-band {
   width: min(100% - 32px, var(--max));
   margin: 0 auto;
-  padding: 76px 0;
+  padding: 64px 0;
   border-top: 1px solid var(--line);
 }
 
 .section-head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 28px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
 }
 
 .section-head h2 {
@@ -443,14 +446,14 @@ h3 {
 
 .stat-card {
   display: grid;
-  min-height: 144px;
+  min-height: 128px;
   align-content: end;
   gap: 10px;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(244, 255, 244, 0.05), transparent),
+    linear-gradient(180deg, rgba(244, 255, 244, 0.035), transparent),
     rgba(17, 23, 17, 0.82);
 }
 
@@ -480,7 +483,7 @@ h3 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(79, 210, 216, 0.08), transparent),
+    linear-gradient(180deg, rgba(79, 210, 216, 0.06), transparent),
     rgba(17, 23, 17, 0.82);
 }
 
@@ -524,37 +527,6 @@ h3 {
 .milestone-card > span {
   color: var(--quiet);
   font-size: 0.9rem;
-}
-
-.roadmap-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.roadmap-card {
-  position: relative;
-  min-height: 210px;
-  overflow: hidden;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(17, 23, 17, 0.8);
-}
-
-.roadmap-card__stripe {
-  display: block;
-  width: 54px;
-  height: 4px;
-  margin-bottom: 28px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--lime), var(--amber), var(--cyan));
-}
-
-.roadmap-card p {
-  margin-bottom: 14px;
-  color: var(--muted);
-  line-height: 1.6;
 }
 
 .text-link {
@@ -686,7 +658,7 @@ h3 {
   justify-content: space-between;
   gap: 28px;
   width: min(100% - 32px, var(--max));
-  margin: 0 auto 76px;
+  margin: 12px auto 76px;
   padding: 34px;
   border: 1px solid rgba(79, 210, 216, 0.32);
   border-radius: 8px;
@@ -753,8 +725,7 @@ h3 {
 
   .stats-grid,
   .milestone-grid,
-  .series-grid,
-  .roadmap-grid {
+  .series-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -812,14 +783,9 @@ h3 {
     font-size: 1.05rem;
   }
 
-  .section-head {
-    display: grid;
-  }
-
   .stats-grid,
   .milestone-grid,
-  .series-grid,
-  .roadmap-grid {
+  .series-grid {
     grid-template-columns: 1fr;
   }
 
