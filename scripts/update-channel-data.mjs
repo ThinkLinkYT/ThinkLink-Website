@@ -85,20 +85,20 @@ async function fromPublicFeeds() {
   ]);
 
   const latestVideo = feed.status === "fulfilled" ? latestFromRss(feed.value) : null;
-  const description = aboutHtml.status === "fulfilled"
-    ? extractMetaDescription(aboutHtml.value)
-    : existing.channel?.description;
+  const publicChannel = aboutHtml.status === "fulfilled"
+    ? extractPublicChannelData(aboutHtml.value)
+    : {};
 
   return {
     channel: {
       id: CHANNEL_ID,
-      title: "ThinkLink",
+      title: publicChannel.title || "ThinkLink",
       handle: CHANNEL_HANDLE,
       url: CHANNEL_URL,
-      description: description || existing.channel?.description || "",
+      description: publicChannel.description || existing.channel?.description || "",
       thumbnail: existing.channel?.thumbnail || null,
-      subscriberCount: existing.channel?.subscriberCount ?? null,
-      viewCount: existing.channel?.viewCount ?? null,
+      subscriberCount: publicChannel.subscriberCount ?? existing.channel?.subscriberCount ?? null,
+      viewCount: publicChannel.viewCount ?? existing.channel?.viewCount ?? null,
       videoCount: latestVideo ? Math.max(existing.channel?.videoCount || 1, 1) : existing.channel?.videoCount ?? 0,
       memberCount: existing.channel?.memberCount ?? null,
       membershipsAvailable: existing.channel?.membershipsAvailable ?? false
@@ -168,6 +168,35 @@ function extractMetaDescription(html) {
   return match ? decodeXml(match[1]).replace(/\s+/g, " ").trim() : "";
 }
 
+function extractPublicChannelData(html) {
+  const aboutIndex = html.lastIndexOf("\"aboutChannelViewModel\"");
+  const segment = aboutIndex >= 0 ? html.slice(aboutIndex, aboutIndex + 7000) : html;
+
+  return {
+    title: extractJsonString(segment, "title"),
+    description: extractJsonString(segment, "description") || extractMetaDescription(html),
+    subscriberCount: parsePublicCount(extractJsonString(segment, "subscriberCountText")),
+    viewCount: parsePublicCount(extractJsonString(segment, "viewCountText"))
+  };
+}
+
+function extractJsonString(source, key) {
+  const match = source.match(new RegExp(`"${escapeRegExp(key)}"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"`));
+  return match ? decodeJsonString(match[1]).replace(/\s+/g, " ").trim() : "";
+}
+
+function parsePublicCount(value = "") {
+  const match = value.replace(/,/g, "").match(/([\d.]+)\s*([KMB])?/i);
+  if (!match) {
+    return null;
+  }
+
+  const multipliers = { K: 1_000, M: 1_000_000, B: 1_000_000_000 };
+  const number = Number(match[1]);
+  const multiplier = multipliers[match[2]?.toUpperCase()] || 1;
+  return Number.isFinite(number) ? Math.round(number * multiplier) : null;
+}
+
 function text(block, tag) {
   const match = block.match(new RegExp(`<${escapeRegExp(tag)}[^>]*>([\\s\\S]*?)<\\/${escapeRegExp(tag)}>`, "i"));
   return match ? match[1].trim() : "";
@@ -198,6 +227,17 @@ function decodeXml(value = "") {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'");
+}
+
+function decodeJsonString(value = "") {
+  try {
+    return JSON.parse(`"${value}"`);
+  } catch {
+    return value
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, "\"")
+      .replace(/\\\\/g, "\\");
+  }
 }
 
 function escapeRegExp(value) {

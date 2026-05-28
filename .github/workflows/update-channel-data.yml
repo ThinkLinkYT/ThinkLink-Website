@@ -1,6 +1,13 @@
 name: Update YouTube data
 
 on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - ".github/workflows/update-channel-data.yml"
+      - "scripts/update-channel-data.mjs"
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:
