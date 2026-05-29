@@ -22,11 +22,14 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     linear-gradient(180deg, rgba(8, 10, 8, 0.92), rgba(8, 10, 8, 0.99)),
     url("../img/thinklink-hero.png") center top / cover fixed,
@@ -51,6 +54,12 @@ body::before {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
 }
 
 img {
@@ -86,6 +95,7 @@ img {
   width: min(100% - 32px, var(--max));
   margin: 0 auto;
   padding: 16px 0;
+  background: linear-gradient(180deg, rgba(8, 10, 8, 0.9), rgba(8, 10, 8, 0.54));
   backdrop-filter: blur(18px);
 }
 
@@ -123,12 +133,16 @@ img {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(12, 17, 13, 0.62);
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.2);
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-links::-webkit-scrollbar {
@@ -139,6 +153,8 @@ img {
 .header-action {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 0;
   min-height: 38px;
   padding: 0 12px;
   border-radius: 6px;
@@ -177,6 +193,7 @@ main {
   align-items: center;
   gap: 42px;
   width: min(100% - 32px, var(--max));
+  min-width: 0;
   min-height: 84vh;
   margin: 0 auto;
   padding: 42px 0 72px;
@@ -184,6 +201,7 @@ main {
 
 .spotlight__visual {
   position: relative;
+  min-width: 0;
   min-height: 360px;
   overflow: hidden;
   border: 1px solid rgba(244, 255, 244, 0.16);
@@ -279,6 +297,7 @@ main {
 .spotlight__copy {
   display: grid;
   gap: 22px;
+  min-width: 0;
 }
 
 .eyebrow,
@@ -303,6 +322,7 @@ h1 {
   font-size: 4.4rem;
   line-height: 0.94;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 h2 {
@@ -368,11 +388,13 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-width: 0;
   min-height: 46px;
   padding: 0 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
   font-weight: 900;
+  text-align: center;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
@@ -421,11 +443,13 @@ h3 {
   color: #e8f4e8;
   font-size: 1.3rem;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .sync-panel {
   display: grid;
   gap: 8px;
+  min-width: 0;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -451,6 +475,7 @@ h3 {
 
 .stat-card {
   display: grid;
+  min-width: 0;
   min-height: 128px;
   align-content: end;
   gap: 10px;
@@ -484,6 +509,7 @@ h3 {
 .milestone-card {
   display: grid;
   gap: 14px;
+  min-width: 0;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -553,6 +579,7 @@ h3 {
   align-items: end;
   gap: 42px;
   width: min(100% - 32px, var(--max));
+  min-width: 0;
   margin: 0 auto;
   padding: 86px 0 72px;
 }
@@ -564,6 +591,7 @@ h3 {
 .series-summary {
   display: grid;
   gap: 8px;
+  min-width: 0;
   padding: 18px;
   border: 1px solid rgba(79, 210, 216, 0.32);
   border-radius: 8px;
@@ -583,6 +611,7 @@ h3 {
 
 .series-card,
 .video-card {
+  min-width: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -636,7 +665,9 @@ h3 {
 .video-card__body {
   display: grid;
   gap: 10px;
+  min-width: 0;
   padding: 18px;
+  overflow-wrap: anywhere;
 }
 
 .series-card__body h3,
@@ -679,6 +710,7 @@ h3 {
   display: grid;
   gap: 14px;
   justify-items: start;
+  min-width: 0;
   min-height: 320px;
   padding: 30px;
   border: 1px solid rgba(255, 209, 102, 0.3);
@@ -701,6 +733,7 @@ h3 {
   justify-content: space-between;
   gap: 28px;
   width: min(100% - 32px, var(--max));
+  min-width: 0;
   margin: 12px auto 76px;
   padding: 34px;
   border: 1px solid rgba(79, 210, 216, 0.32);
@@ -734,6 +767,8 @@ h3 {
 .footer-brand {
   display: grid;
   gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .footer-brand strong {
@@ -770,11 +805,17 @@ h3 {
 
 .footer-meta {
   justify-self: end;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 980px) {
+  body {
+    background-attachment: scroll;
+  }
+
   .site-header {
     flex-wrap: wrap;
+    gap: 12px;
   }
 
   .nav-links {
@@ -792,7 +833,7 @@ h3 {
 
   .spotlight {
     min-height: auto;
-    padding-top: 28px;
+    padding: 30px 0 62px;
   }
 
   .spotlight__visual {
@@ -800,7 +841,16 @@ h3 {
   }
 
   h1 {
-    font-size: 3.4rem;
+    font-size: 3.2rem;
+  }
+
+  .content-band {
+    padding: 56px 0;
+  }
+
+  .page-hero {
+    gap: 28px;
+    padding: 68px 0 56px;
   }
 
   .stats-grid,
@@ -828,6 +878,59 @@ h3 {
   }
 }
 
+@media (max-width: 760px) {
+  .site-header,
+  .spotlight,
+  .page-hero,
+  .content-band,
+  .discord-section,
+  .site-footer {
+    width: min(100% - 24px, var(--max));
+  }
+
+  .site-header {
+    padding: 12px 0;
+  }
+
+  .brand__mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .nav-links a {
+    min-height: 40px;
+    padding: 0 8px;
+  }
+
+  .spotlight {
+    gap: 26px;
+  }
+
+  .page-hero {
+    padding: 52px 0 44px;
+  }
+
+  .content-band {
+    padding: 48px 0;
+  }
+
+  .about-layout {
+    gap: 20px;
+  }
+
+  .discord-section {
+    margin-bottom: 58px;
+    padding: 28px;
+  }
+}
+
 @media (max-width: 620px) {
   .site-header,
   .spotlight,
@@ -843,7 +946,7 @@ h3 {
   }
 
   .nav-links a {
-    min-height: 34px;
+    min-height: 38px;
     padding: 0 10px;
     font-size: 0.86rem;
   }
@@ -854,7 +957,7 @@ h3 {
   }
 
   .spotlight__visual {
-    min-height: 210px;
+    min-height: 0;
   }
 
   .spotlight__tag {
@@ -864,11 +967,11 @@ h3 {
   }
 
   h1 {
-    font-size: 2.7rem;
+    font-size: 2.55rem;
   }
 
   h2 {
-    font-size: 1.7rem;
+    font-size: 1.56rem;
   }
 
   .lede,
@@ -890,6 +993,100 @@ h3 {
   .button {
     width: 100%;
   }
+
+  .stat-card {
+    min-height: 108px;
+  }
+
+  .empty-series {
+    min-height: auto;
+    padding: 24px;
+  }
+
+  .site-footer {
+    gap: 16px;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .footer-links a {
+    justify-content: center;
+    min-height: 38px;
+  }
+}
+
+@media (max-width: 380px) {
+  .site-header,
+  .spotlight,
+  .page-hero,
+  .content-band,
+  .discord-section,
+  .site-footer {
+    width: min(100% - 16px, var(--max));
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand__mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand__name {
+    font-size: 0.95rem;
+  }
+
+  .nav-links a {
+    padding: 0 4px;
+    font-size: 0.8rem;
+  }
+
+  .spotlight {
+    gap: 22px;
+    padding-bottom: 44px;
+  }
+
+  .spotlight-copy-block {
+    padding-left: 14px;
+  }
+
+  .spotlight__tag {
+    max-width: calc(100% - 24px);
+    padding: 8px 10px;
+  }
+
+  h1 {
+    font-size: 2.28rem;
+  }
+
+  h2 {
+    font-size: 1.42rem;
+  }
+
+  .lede,
+  .about-text {
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.76rem;
+  }
+
+  .sync-panel,
+  .stat-card,
+  .milestone-card,
+  .series-card__body,
+  .video-card__body,
+  .empty-series,
+  .discord-section {
+    padding: 18px;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -907,6 +1104,19 @@ h3 {
 
   .content-band {
     animation-delay: 180ms;
+  }
+}
+
+@media (hover: none) {
+  .nav-links a:hover,
+  .header-action:hover,
+  .button:hover {
+    transform: none;
+  }
+
+  .series-card:hover .series-card__media img,
+  .video-card:hover .video-card__media img {
+    transform: none;
   }
 }
 
