@@ -217,6 +217,59 @@ img {
   box-shadow: 0 10px 28px rgba(255, 209, 102, 0.08);
 }
 
+.nav-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  place-content: center;
+  gap: 4px;
+  border: 1px solid rgba(244, 255, 244, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(244, 255, 244, 0.1), transparent),
+    rgba(244, 255, 244, 0.05);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(244, 255, 244, 0.08);
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.nav-toggle:hover {
+  border-color: rgba(121, 241, 95, 0.36);
+  background:
+    linear-gradient(135deg, rgba(121, 241, 95, 0.12), rgba(79, 210, 216, 0.08)),
+    rgba(244, 255, 244, 0.06);
+}
+
+.nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 14px rgba(121, 241, 95, 0.18);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.site-header.is-nav-open .nav-toggle {
+  border-color: rgba(121, 241, 95, 0.46);
+  background:
+    linear-gradient(135deg, rgba(121, 241, 95, 0.18), rgba(79, 210, 216, 0.1)),
+    rgba(244, 255, 244, 0.08);
+}
+
+.site-header.is-nav-open .nav-toggle span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.site-header.is-nav-open .nav-toggle span:nth-child(2) {
+  opacity: 0;
+}
+
+.site-header.is-nav-open .nav-toggle span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 main {
   position: relative;
   z-index: 1;
@@ -1052,15 +1105,77 @@ h3 {
   }
 
   .site-header {
-    flex-wrap: wrap;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-action {
+    grid-column: 2;
+    grid-row: 1;
+    white-space: nowrap;
+  }
+
+  .nav-toggle {
+    display: grid;
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .nav-links {
-    order: 3;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
     width: 100%;
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    visibility: hidden;
     justify-content: space-between;
-    overflow-x: auto;
+    transition:
+      max-height 220ms ease,
+      opacity 180ms ease,
+      transform 180ms ease,
+      padding 180ms ease,
+      border-color 180ms ease,
+      visibility 0s linear 220ms;
+  }
+
+  .site-header.is-nav-open .nav-links {
+    max-height: 180px;
+    padding: 6px;
+    border-width: 1px;
+    border-color: rgba(244, 255, 244, 0.12);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+    transition:
+      max-height 220ms ease,
+      opacity 180ms ease,
+      transform 180ms ease,
+      padding 180ms ease,
+      border-color 180ms ease,
+      visibility 0s;
   }
 
   .spotlight,
@@ -1127,7 +1242,16 @@ h3 {
   }
 
   .site-header {
-    padding: 12px 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 10px;
+  }
+
+  .header-action {
+    display: none;
+  }
+
+  .nav-toggle {
+    grid-column: 2;
   }
 
   .brand__mark {
@@ -1136,15 +1260,13 @@ h3 {
   }
 
   .nav-links {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 
   .nav-links a {
-    min-height: 40px;
-    padding: 0 8px;
+    min-height: 42px;
+    padding: 0 10px;
   }
 
   .spotlight {
@@ -1177,10 +1299,6 @@ h3 {
   .discord-section,
   .site-footer {
     width: min(100% - 22px, var(--max));
-  }
-
-  .header-action {
-    display: none;
   }
 
   .nav-links a {
@@ -1281,8 +1399,8 @@ h3 {
   }
 
   .nav-links a {
-    padding: 0 4px;
-    font-size: 0.8rem;
+    padding: 0 8px;
+    font-size: 0.82rem;
   }
 
   .spotlight {

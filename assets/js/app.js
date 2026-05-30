@@ -20,6 +20,9 @@ const FALLBACK = {
 };
 
 const els = {
+  siteHeader: document.querySelector(".site-header"),
+  navToggle: document.querySelector(".nav-toggle"),
+  navLinks: document.querySelector(".nav-links"),
   spotlightImage: document.querySelector("#spotlight-image"),
   spotlightPlay: document.querySelector("#spotlight-play"),
   spotlightStatus: document.querySelector("#spotlight-status"),
@@ -45,8 +48,51 @@ const els = {
 init();
 
 async function init() {
+  setupMobileNav();
   const data = await loadChannelData();
   render(data);
+}
+
+function setupMobileNav() {
+  if (!els.siteHeader || !els.navToggle || !els.navLinks) {
+    return;
+  }
+
+  const desktopQuery = window.matchMedia("(min-width: 981px)");
+
+  const setOpen = (isOpen) => {
+    els.siteHeader.classList.toggle("is-nav-open", isOpen);
+    els.navToggle.setAttribute("aria-expanded", String(isOpen));
+    els.navToggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+  };
+
+  els.navToggle.addEventListener("click", () => {
+    setOpen(!els.siteHeader.classList.contains("is-nav-open"));
+  });
+
+  els.navLinks.addEventListener("click", (event) => {
+    if (event.target.closest("a")) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+
+  const closeOnDesktop = (event) => {
+    if (event.matches) {
+      setOpen(false);
+    }
+  };
+
+  if (typeof desktopQuery.addEventListener === "function") {
+    desktopQuery.addEventListener("change", closeOnDesktop);
+  } else {
+    desktopQuery.addListener(closeOnDesktop);
+  }
 }
 
 async function loadChannelData() {
