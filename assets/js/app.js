@@ -49,6 +49,7 @@ init();
 
 async function init() {
   setupMobileNav();
+  setupCopyButtons();
   const data = await loadChannelData();
   render(data);
 }
@@ -93,6 +94,33 @@ function setupMobileNav() {
   } else {
     desktopQuery.addListener(closeOnDesktop);
   }
+}
+
+function setupCopyButtons() {
+  document.querySelectorAll("[data-copy-code]").forEach((button) => {
+    const code = button.getAttribute("data-copy-code") || "";
+    const defaultText = button.textContent;
+
+    button.addEventListener("click", async () => {
+      if (!code) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = "Copied";
+        button.classList.add("is-copied");
+      } catch (error) {
+        console.warn(error);
+        button.textContent = code;
+      }
+
+      window.setTimeout(() => {
+        button.textContent = defaultText;
+        button.classList.remove("is-copied");
+      }, 1800);
+    });
+  });
 }
 
 async function loadChannelData() {

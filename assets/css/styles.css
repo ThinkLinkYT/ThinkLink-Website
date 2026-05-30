@@ -728,7 +728,8 @@ h3 {
 .stat-card:hover,
 .milestone-card:hover,
 .series-card:hover,
-.video-card:hover {
+.video-card:hover,
+.sponsor-perk:hover {
   transform: translateY(-3px);
   border-color: rgba(244, 255, 244, 0.22);
 }
@@ -1018,6 +1019,187 @@ h3 {
   line-height: 1.65;
 }
 
+.sponsor-hero {
+  padding-bottom: 56px;
+}
+
+.sponsor-summary strong {
+  color: var(--amber);
+  font-size: 2.1rem;
+  letter-spacing: 0.1em;
+}
+
+.sponsor-showcase {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(300px, 0.88fr) minmax(0, 1.12fr);
+  align-items: center;
+  gap: 34px;
+  width: min(100% - 32px, var(--max));
+  min-width: 0;
+  margin: 0 auto 18px;
+  padding: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(244, 255, 244, 0.14);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(244, 255, 244, 0.08), transparent 40%),
+    linear-gradient(225deg, rgba(79, 210, 216, 0.11), transparent 46%),
+    var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.sponsor-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--lime), var(--cyan), var(--amber));
+}
+
+.sponsor-logo-stage {
+  display: grid;
+  min-width: 0;
+  min-height: 360px;
+  place-items: center;
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(244, 255, 244, 0.16);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(244, 255, 244, 0.08), transparent 45%),
+    #000;
+  box-shadow:
+    inset 0 1px 0 rgba(244, 255, 244, 0.1),
+    0 18px 54px rgba(0, 0, 0, 0.32);
+}
+
+.sponsor-logo-stage img {
+  width: min(100%, 430px);
+  filter: drop-shadow(0 20px 50px rgba(244, 255, 244, 0.1));
+}
+
+.sponsor-copy {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.sponsor-copy h2 {
+  margin-bottom: 0;
+}
+
+.sponsor-copy p:not(.section-kicker) {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.promo-strip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 520px);
+  min-width: 0;
+  padding: 10px 10px 10px 16px;
+  border: 1px solid rgba(255, 209, 102, 0.34);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 209, 102, 0.13), rgba(121, 241, 95, 0.07)),
+    rgba(244, 255, 244, 0.05);
+  box-shadow: inset 0 1px 0 rgba(244, 255, 244, 0.08);
+}
+
+.promo-strip span {
+  color: var(--quiet);
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.promo-strip strong {
+  color: var(--amber);
+  font-size: 1.55rem;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.copy-code {
+  min-height: 40px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.copy-code.is-copied {
+  border-color: rgba(121, 241, 95, 0.56);
+  color: var(--lime);
+}
+
+.sponsor-disclosure {
+  color: var(--quiet) !important;
+  font-size: 0.9rem !important;
+}
+
+.sponsor-details {
+  padding-top: 52px;
+}
+
+.sponsor-perk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sponsor-perk {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 156px;
+  align-content: end;
+  gap: 10px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(244, 255, 244, 0.13);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(244, 255, 244, 0.06), transparent),
+    var(--panel);
+  box-shadow: var(--soft-shadow);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.sponsor-perk::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--lime), var(--cyan), var(--amber));
+}
+
+.sponsor-perk span {
+  color: var(--quiet);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.sponsor-perk strong {
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.sponsor-perk p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.sponsor-discord {
+  border-color: rgba(255, 209, 102, 0.38);
+}
+
 .discord-section {
   display: flex;
   align-items: center;
@@ -1180,6 +1362,7 @@ h3 {
 
   .spotlight,
   .page-hero,
+  .sponsor-showcase,
   .about-layout {
     grid-template-columns: 1fr;
   }
@@ -1209,8 +1392,13 @@ h3 {
   .stats-grid,
   .milestone-grid,
   .series-grid,
-  .video-grid {
+  .video-grid,
+  .sponsor-perk-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sponsor-logo-stage {
+    min-height: 290px;
   }
 
   .discord-section {
@@ -1236,6 +1424,7 @@ h3 {
   .spotlight,
   .page-hero,
   .content-band,
+  .sponsor-showcase,
   .discord-section,
   .site-footer {
     width: min(100% - 24px, var(--max));
@@ -1281,6 +1470,19 @@ h3 {
     padding: 48px 0;
   }
 
+  .sponsor-showcase {
+    gap: 24px;
+    padding: 24px;
+  }
+
+  .sponsor-logo-stage {
+    min-height: 250px;
+  }
+
+  .sponsor-perk-grid {
+    grid-template-columns: 1fr;
+  }
+
   .about-layout {
     gap: 20px;
   }
@@ -1296,6 +1498,7 @@ h3 {
   .spotlight,
   .page-hero,
   .content-band,
+  .sponsor-showcase,
   .discord-section,
   .site-footer {
     width: min(100% - 22px, var(--max));
@@ -1314,6 +1517,24 @@ h3 {
 
   .spotlight__visual {
     min-height: 0;
+  }
+
+  .promo-strip {
+    grid-template-columns: 1fr auto;
+    width: 100%;
+  }
+
+  .promo-strip span {
+    grid-column: 1 / -1;
+  }
+
+  .copy-code {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .sponsor-copy .action-row .button {
+    width: 100%;
   }
 
   .spotlight__tag {
@@ -1380,6 +1601,7 @@ h3 {
   .spotlight,
   .page-hero,
   .content-band,
+  .sponsor-showcase,
   .discord-section,
   .site-footer {
     width: min(100% - 16px, var(--max));
@@ -1417,6 +1639,20 @@ h3 {
     padding: 8px 10px;
   }
 
+  .sponsor-showcase {
+    padding: 18px;
+  }
+
+  .sponsor-logo-stage {
+    min-height: 210px;
+    padding: 16px;
+  }
+
+  .sponsor-summary strong,
+  .promo-strip strong {
+    font-size: 1.32rem;
+  }
+
   h1 {
     font-size: 2.28rem;
   }
@@ -1437,6 +1673,7 @@ h3 {
   .sync-panel,
   .stat-card,
   .milestone-card,
+  .sponsor-perk,
   .series-card__body,
   .video-card__body,
   .empty-series,
@@ -1450,6 +1687,7 @@ h3 {
   .spotlight__copy,
   .page-hero,
   .content-band,
+  .sponsor-showcase,
   .discord-section {
     animation: rise-in 620ms ease both;
   }
@@ -1477,7 +1715,8 @@ h3 {
   .stat-card:hover,
   .milestone-card:hover,
   .series-card:hover,
-  .video-card:hover {
+  .video-card:hover,
+  .sponsor-perk:hover {
     transform: none;
   }
 
