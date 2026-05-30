@@ -200,7 +200,7 @@ function renderSpotlight(channel, latestVideo) {
       els.spotlightMeta.innerHTML = `<span>No public videos yet</span><span>Spotlight armed</span>`;
     }
     if (els.spotlightImage) {
-      els.spotlightImage.src = "assets/img/thinklink-hero.png";
+      els.spotlightImage.src = "assets/img/site-background.jpg";
     }
     if (els.spotlightPlay) {
       els.spotlightPlay.hidden = true;
@@ -410,7 +410,7 @@ function renderVideoCard(video) {
 
 function renderPlaylistCard(playlist) {
   const latest = playlist.latestVideo;
-  const thumbnail = safeUrl(playlist.thumbnail || latest?.thumbnail || "assets/img/thinklink-hero.png");
+  const thumbnail = safeUrl(playlist.thumbnail || latest?.thumbnail || "assets/img/site-background.jpg");
   const title = playlist.title || "Untitled series";
   const itemCount = Number(playlist.itemCount) || 0;
   const badge = itemCount === 0 ? "Empty playlist" : `${compactNumber(itemCount)} ${itemCount === 1 ? "video" : "videos"}`;
@@ -433,7 +433,7 @@ function renderPlaylistCard(playlist) {
 }
 
 function makeThumbnail(videoId) {
-  return videoId ? `https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg` : "assets/img/thinklink-hero.png";
+  return videoId ? `https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg` : "assets/img/site-background.jpg";
 }
 
 function isDisplayableOwnerVideo(video) {
