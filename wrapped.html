@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ThinkLink Wrapped</title>
+    <meta
+      name="description"
+      content="A private ThinkLink Discord Wrapped stats page opened from the ThinkLinkBot Discord command."
+    >
+    <meta name="theme-color" content="#100906">
+    <meta property="og:title" content="ThinkLink Wrapped">
+    <meta property="og:description" content="Open your ThinkLink Discord activity and economy stats.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/img/site-background.jpg">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/img/site-background.jpg" as="image">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260608-wrapped1">
+    <script defer src="assets/js/wrapped.js?v=20260608-wrapped1"></script>
+  </head>
+  <body class="wrapped-page">
+    <header class="site-header wrapped-header" aria-label="ThinkLink Wrapped">
+      <a class="brand" href="index.html" aria-label="ThinkLink home">
+        <span class="brand__mark" aria-hidden="true">
+          <img src="assets/img/thinklink-logo.jpg" alt="">
+        </span>
+        <span class="brand__name">ThinkLink</span>
+      </a>
+      <span class="wrapped-header__badge">Discord Wrapped</span>
+    </header>
+
+    <main id="main">
+      <section class="wrapped-hero" aria-labelledby="wrapped-heading">
+        <div class="wrapped-hero__identity">
+          <img id="wrapped-avatar" src="assets/img/thinklink-logo.jpg" alt="">
+          <div>
+            <p class="eyebrow">ThinkLink's Land</p>
+            <h1 id="wrapped-heading">Wrapped</h1>
+            <p class="lede" id="wrapped-subtitle">Loading your stats page.</p>
+          </div>
+        </div>
+        <div class="wrapped-hero__meta" aria-label="Wrapped summary">
+          <span class="sync-panel__label">Generated</span>
+          <strong id="wrapped-generated">Checking link</strong>
+          <span class="sync-panel__note" id="wrapped-id">Private stats snapshot</span>
+        </div>
+      </section>
+
+      <section class="content-band wrapped-controls-band" aria-labelledby="range-heading">
+        <div class="section-head">
+          <p class="section-kicker">Timeline</p>
+          <h2 id="range-heading">Choose a stat range</h2>
+        </div>
+        <div class="wrapped-range-tabs" id="wrapped-range-tabs" aria-label="Wrapped stat range"></div>
+        <p class="wrapped-range-note" id="wrapped-range-note"></p>
+      </section>
+
+      <section class="content-band wrapped-stats-band" aria-labelledby="stats-heading">
+        <div class="section-head">
+          <p class="section-kicker">Activity pulse</p>
+          <h2 id="stats-heading">Discord stats</h2>
+        </div>
+        <div class="wrapped-stat-grid" id="wrapped-stat-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="content-band wrapped-economy-band" aria-labelledby="economy-heading">
+        <div class="section-head">
+          <p class="section-kicker">Economy profile</p>
+          <h2 id="economy-heading">Coins, jobs, pets, and progress</h2>
+        </div>
+        <div class="wrapped-economy-layout">
+          <div class="wrapped-economy-main" id="wrapped-economy-main"></div>
+          <div class="wrapped-list-panel">
+            <h3>Inventory Highlights</h3>
+            <div id="wrapped-inventory"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band wrapped-top-band" aria-labelledby="top-heading">
+        <div class="section-head">
+          <p class="section-kicker">Top moments</p>
+          <h2 id="top-heading">Channels, emojis, and mentions</h2>
+        </div>
+        <div class="wrapped-top-grid">
+          <article class="wrapped-list-panel">
+            <h3>Top Channels</h3>
+            <div id="wrapped-top-channels"></div>
+          </article>
+          <article class="wrapped-list-panel">
+            <h3>Top Emojis</h3>
+            <div id="wrapped-top-emojis"></div>
+          </article>
+          <article class="wrapped-list-panel">
+            <h3>Top Mentions</h3>
+            <div id="wrapped-top-mentions"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="discord-section wrapped-achievements" aria-labelledby="achievements-heading">
+        <div>
+          <p class="section-kicker">Unlocked</p>
+          <h2 id="achievements-heading">Achievements</h2>
+          <div class="wrapped-achievement-list" id="wrapped-achievements"></div>
+        </div>
+        <button class="button button--primary" id="copy-wrapped-link" type="button">
+          Copy Link <span class="button__icon" aria-hidden="true">-&gt;</span>
+        </button>
+      </section>
+
+      <section class="content-band wrapped-error" id="wrapped-error" hidden aria-live="polite">
+        <div class="section-head">
+          <p class="section-kicker">Link issue</p>
+          <h2>Wrapped data is not available</h2>
+        </div>
+        <p id="wrapped-error-message">
+          This page needs to be opened from the Discord bot's Wrapped button.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <strong>ThinkLink Wrapped</strong>
+        <span>Private Discord and economy stats generated by ThinkLinkBot.</span>
+      </div>
+      <span class="footer-meta">This page is intentionally hidden from site navigation.</span>
+    </footer>
+  </body>
+</html>
