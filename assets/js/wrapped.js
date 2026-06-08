@@ -65,6 +65,10 @@ async function loadWrappedPayload() {
     throw new Error("The bot is ready, but WRAPPED_API_URL still needs to be configured so Discord can open short unique Wrapped links.");
   }
 
+  if (params.get("setup") === "api-error") {
+    throw new Error(params.get("reason") || "The bot could not save this Wrapped payload to the Apps Script API.");
+  }
+
   if (params.has("d")) {
     return decodeInlinePayload(params.get("d"), params.get("z") === "1");
   }
